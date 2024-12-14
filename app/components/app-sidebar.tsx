@@ -1,4 +1,5 @@
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { ModeToggle } from "../components/mode-toggle";
 
 import {
   Sidebar,
@@ -62,6 +63,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <ModeToggle />
     </Sidebar>
   );
 }

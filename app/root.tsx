@@ -1,4 +1,11 @@
 // mostly controls the global layout of the page
+import clsx from "clsx";
+import {
+  PreventFlashOnWrongTheme,
+  ThemeProvider,
+  useTheme,
+} from "remix-themes";
+import { themeSessionResolver } from "./sessions.server";
 import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import {
@@ -8,10 +15,16 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useLoaderData,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 
 import "./tailwind.css";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { getTheme } = await themeSessionResolver(request);
+  return { theme: getTheme() };
+}
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,12 +39,23 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+  return (
+    <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export function App() {
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
   const location = useLocation();
   const showSidebar = location.pathname !== "/";
 
   return (
-    <html lang="en">
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -40,17 +64,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
 
       <body>
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
+
         {showSidebar ? (
           <SidebarProvider>
             <AppSidebar />
             <SidebarTrigger />
-            {children}
+            <Outlet />
             <ScrollRestoration />
             <Scripts />
           </SidebarProvider>
         ) : (
           <>
-            {children}
+            <Outlet />
             <ScrollRestoration />
             <Scripts />
           </>
@@ -58,8 +84,4 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
-}
-
-export default function App() {
-  return <Outlet />;
 }
