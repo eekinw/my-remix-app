@@ -1,9 +1,13 @@
+// mostly controls the global layout of the page
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { AppSidebar } from "~/components/app-sidebar";
 import {
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 
@@ -23,6 +27,9 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const showSidebar = location.pathname !== "/";
+
   return (
     <html lang="en">
       <head>
@@ -31,10 +38,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
+
       <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
+        {showSidebar ? (
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarTrigger />
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </SidebarProvider>
+        ) : (
+          <>
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </>
+        )}
       </body>
     </html>
   );
