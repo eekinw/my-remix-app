@@ -31,7 +31,7 @@ export default function Index() {
         </header>
         <button>
           Click{" "}
-          <Link to="/home" className="font-bold">
+          <Link to="/reads" className="font-bold">
             here
           </Link>{" "}
           to start reading!
