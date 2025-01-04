@@ -1,21 +1,17 @@
 import { IRead } from "~/lib/interface";
 import AddReadingDialog from "~/components/add-reading-dialog";
-import { v4 as uuid } from "uuid";
 import { useLoaderData } from "@remix-run/react";
+import { PrismaClient } from "@prisma/client";
+export const prisma = new PrismaClient();
 
 export const loader = async () => {
-  return [
-    {
-      id: uuid(),
-      url: "https://www.google.com",
-      has_read: false,
-    },
-    {
-      id: uuid(),
-      url: "https://www.bing.com",
-      has_read: false,
-    },
-  ];
+  try {
+    const readings = await prisma.reading.findMany();
+    return readings;
+  } catch (error) {
+    console.error("Error fetching readings:", error);
+    throw new Response("Failed to load readings", { status: 500 });
+  }
 };
 
 export default function Reads() {
@@ -34,10 +30,10 @@ export default function Reads() {
               {readingList.map((read) => (
                 <div
                   key={read.id}
-                  className="p-4 border rounded-lg shadow-sm  hover:shadow-md transition-shadow"
+                  className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="truncate">
-                    <h3 className="text-lg font-semibold">{read.url}</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold">{read.title}</h3>
                   </div>
                 </div>
               ))}

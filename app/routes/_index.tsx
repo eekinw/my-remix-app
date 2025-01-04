@@ -3,7 +3,7 @@ import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Jozu Reading" },
+    { title: "Reading App" },
     { name: "description", content: "Let's Immerse!" },
   ];
 };
